@@ -1,6 +1,8 @@
 module Main
   where
 
+import Control.Monad (forM_)
+
 data Color = Black
            | Red
            | Green
@@ -18,6 +20,9 @@ data Color = Black
            | LightMagenta
            | LightCyan
            | LightWhite
+           deriving (Show, Enum)
+
+allColors = [Black .. LightWhite]
 
 data TextStyle = DefaultStyle
                | Bold
@@ -25,7 +30,6 @@ data TextStyle = DefaultStyle
                | Blink
                | Swap
                | Hide
-
 
 styleCode :: TextStyle -> Int
 styleCode style = case style of
@@ -76,8 +80,13 @@ renderText colorText = prefix ++ rendered_strings ++ suffix
         bgcolor_str = (show . bgColorCode) $ bgColor colorText
         text_str    = text colorText
 
+-- Compose a line of single text color with different background colors
+renderBgColors :: Color -> String -> String
+renderBgColors clr text = concat coloredWords
+  where coloredWords = map bgColorText allColors
+        bgColorText bgClr = renderText $ ColorText text DefaultStyle clr bgClr
 
 main :: IO ()
 main = do
-  putStrLn $ renderText color1
-    where  color1 = ColorText "This is pretty long string" DefaultStyle Red Green
+  -- Color Matrix
+  forM_ allColors (\clr -> putStrLn $ renderBgColors clr "colors")
